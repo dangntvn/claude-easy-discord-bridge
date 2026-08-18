@@ -1,0 +1,12 @@
+{
+  "name": "claude-easy-discord-bridge",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Discord bridge cho Claude Code - project<->channel, session<->thread",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3"
+  }
+}
