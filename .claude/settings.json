@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/skills/claude-easy-discord-bridge/scripts/permission-relay.js\"",
+            "timeout": 660,
+            "statusMessage": "Đang chờ duyệt quyền qua Discord..."
+          }
+        ]
+      }
+    ]
+  },
+  "disableArtifact": true,
+  "disableWorkflows": true,
+  "permissions": {
+    "deny": [
+      "Artifact",
+      "Workflow"
+    ]
+  }
+}
