@@ -2,188 +2,208 @@
 
 # 🌉 Claude Easy Discord Bridge
 
-*(tên kỹ thuật của skill/thư mục: `claude-easy-discord-bridge`)*
+*(technical name of the skill/directory: `claude-easy-discord-bridge`)*
 
-**Điều khiển Claude Code ngay trên Discord — kể cả từ điện thoại.**
+**English** · [Tiếng Việt](README.vi.md) · [日本語](README.ja.md) · [中文](README.zh.md)
 
-Skill cho [Claude Code](https://claude.com/claude-code) biến mỗi session
-đang chạy thành một cuộc trò chuyện Discord: nhắn tin, xem tiến độ — mọi lúc,
-mọi nơi, không cần ngồi trước VSCode. Chạy **nhiều việc, nhiều dự án cùng
-một lúc** vẫn tách bạch rõ ràng, không lo nhầm lẫn.
+**Control Claude Code right from Discord — even from your phone.**
+
+A skill for [Claude Code](https://claude.com/claude-code) that turns every
+running session into a Discord conversation: send messages, watch progress —
+anytime, anywhere, without sitting in front of VSCode. Run **multiple tasks
+across multiple projects at the same time** and everything still stays
+clearly separated, with no risk of mixing things up.
 
 </div>
 
 ---
 
-## 📌 Vì sao cần cái này?
+## 📌 Why do you need this?
 
-Claude Code mặc định chỉ chạy được trong 1 cửa sổ terminal/VSCode — bạn phải
-ngồi đó chờ, hoặc mất kết nối với session ngay khi rời máy. Skill này giải
-quyết đúng vấn đề đó.
+By default, Claude Code only runs inside a single terminal/VSCode window —
+you either have to sit there waiting, or you lose your connection to the
+session the moment you step away from the machine. This skill solves exactly
+that problem.
 
-> 🔌 **Đặc biệt:** không cần chuẩn bị hay cấu hình gì trước. Đang chat dở
-> với Claude giữa chừng một việc, chỉ cần gõ ngay **"hãy kết nối discord"**
-> trong đúng cuộc trò chuyện đó là nối được luôn — không cần dừng việc đang
-> làm, không cần mở lại từ đầu. Đây là điều **chỉ riêng skill này làm
-> được**: hầu hết plugin/bot Discord khác bắt bạn phải khởi tạo phiên làm
-> việc thông qua chúng ngay từ đầu, không "gắn" được Discord vào giữa một
-> cuộc trò chuyện đang chạy dở.
+> 🔌 **What makes it special:** no setup or configuration needed in advance.
+> If you're in the middle of a conversation with Claude working on something,
+> just type **"connect to discord"** right in that same conversation and it
+> connects immediately — no need to stop what you're doing, no need to start
+> over. This is something **only this skill can do**: most other
+> Discord plugins/bots require you to initiate a work session through them
+> from the very start — they can't "attach" Discord to a conversation that's
+> already underway.
 
-| Không có skill | Có Claude Easy Discord Bridge |
+| Without the skill | With Claude Easy Discord Bridge |
 |---|---|
-| Đang chat dở một việc với Claude, muốn dùng Discord phải dừng lại, mở phiên mới từ đầu | Gõ "kết nối discord" ngay giữa chừng công việc đang làm, không mất ngữ cảnh, không cần khởi động lại |
-| Nhiều session chạy song song → dễ lẫn lộn cửa sổ nào là cửa sổ nào | Mỗi session 1 thread riêng, tên rõ ràng, không bao giờ nhầm |
-| Nhiều project → nhiều chỗ phải mở, phải nhớ | Mỗi project 1 channel riêng, tách bạch hoàn toàn |
-| Muốn hỏi Claude 1 câu nhanh phải mở lại IDE | Gõ thẳng vào Discord, Claude trả lời ngay trong thread |
-| Phải ngồi trước máy để theo dõi Claude làm việc | Theo dõi & trả lời ngay trên điện thoại qua Discord |
+| In the middle of a conversation with Claude, and to use Discord you have to stop and start a new session from scratch | Type "connect to discord" mid-task, no loss of context, no need to restart |
+| Multiple sessions running in parallel → easy to lose track of which window is which | Each session gets its own thread with a clear name — never confused |
+| Multiple projects → many places to open and keep track of | Each project gets its own channel — fully separated |
+| Want to ask Claude a quick question → have to reopen the IDE | Type straight into Discord, Claude answers right in the thread |
+| Have to sit at the machine to watch Claude work | Follow along and reply right from your phone via Discord |
 
-## ✨ Tính năng chính
+## ✨ Key features
 
-### 🧵 Làm nhiều việc, nhiều dự án cùng lúc — vẫn cực kỳ đơn giản
-Đây là điểm mạnh nhất của skill: bạn có thể mở nhiều cuộc trò chuyện Claude
-Code khác nhau (ví dụ vừa sửa lỗi ở dự án A, vừa viết báo cáo ở dự án B)
-**cùng một lúc**, và trên Discord mọi thứ tự sắp xếp gọn gàng:
+### 🧵 Multiple tasks, multiple projects at once — and still dead simple
+This is the skill's biggest strength: you can have several different Claude
+Code conversations open at once (e.g. fixing a bug in project A while
+writing a report in project B) **at the same time**, and on Discord
+everything stays neatly organized:
 
-- Mỗi **dự án** hiện thành **1 kênh Discord riêng** — việc của dự án A không
-  bao giờ lẫn vào dự án B.
-- Trong mỗi kênh, mỗi **cuộc trò chuyện đang chạy** hiện thành **1 thread
-  riêng**, tự đặt tên theo đúng việc đang làm (vd "sửa lỗi đăng nhập",
-  "phân tích báo cáo") — mở bao nhiêu việc cùng lúc cũng không lo nhắn nhầm
-  chỗ, chỉ cần vào đúng thread là đang nói chuyện với đúng việc đó.
-- Không cần tự quản lý hay đặt tên gì thủ công — mọi việc sắp xếp tự động
-  ngay khi bạn nói "kết nối Discord đi".
+- Each **project** shows up as **its own Discord channel** — work on
+  project A never gets mixed into project B.
+- Within each channel, each **running conversation** shows up as **its own
+  thread**, automatically named after the task at hand (e.g. "fix login
+  bug", "analyze report") — no matter how many tasks you have running at
+  once, you never risk messaging the wrong place: just go to the right
+  thread and you're talking to the right task.
+- No manual management or naming required — everything is organized
+  automatically as soon as you say "connect to Discord."
 
-### 💬 Nhắn tin 2 chiều theo thời gian thực
-Gõ tin nhắn vào thread Discord, Claude Code nhận và trả lời gần như ngay lập
-tức — không cần polling chậm chạp, không cần refresh.
+### 💬 Real-time two-way messaging
+Type a message in the Discord thread, and Claude Code picks it up and
+replies almost instantly — no slow polling, no need to refresh.
 
-### ✅ Trạng thái xử lý rõ ràng bằng reaction
-React 🤔 ngay khi bắt đầu xử lý tin nhắn, đổi thành ✅ khi xong — nhìn vào
-Discord là biết ngay Claude đang bận hay đã trả lời.
+### ✅ Clear processing status via reactions
+Reacts with 🤔 as soon as it starts processing a message, and changes to
+✅ when done — one glance at Discord tells you whether Claude is busy or has
+already replied.
 
-### 🔁 Resume đúng thread cũ, không tạo trùng
-Kết nối lại đúng session cũ (mở lại đúng cuộc chat) sẽ tự tìm lại đúng thread
-đã tạo trước đó, không bao giờ sinh thread trùng lặp.
+### 🔁 Resumes the same thread, never creates duplicates
+Reconnecting to the same session (reopening the same conversation)
+automatically finds the thread that was already created for it — it never
+spawns a duplicate thread.
 
-### 🚦 Ngắt kết nối linh hoạt
-Ngắt riêng 1 session hoặc ngắt cả project (kèm cảnh báo nếu còn session khác
-đang sống) — luôn chủ động, không có cơ chế tự động ngắt ngầm.
+### 🚦 Flexible disconnecting
+Disconnect a single session, or disconnect an entire project (with a
+warning if other sessions are still alive) — always explicit, with no
+hidden auto-disconnect mechanism.
 
-### ⚡ Nhanh, không phụ thuộc chồng chéo
-Gửi tin dùng REST trực tiếp, không qua Gateway — chiều gửi không bao giờ bị
-chặn dù chiều nhận đang gặp sự cố. Đã đo hiệu năng thật, không đoán mò.
+### ⚡ Fast, with no tangled dependencies
+Sending messages uses REST directly, not the Gateway — the send direction
+is never blocked even if the receive direction is having trouble. Backed
+by real performance measurements, not guesswork.
 
-## 🏆 Ưu điểm nổi bật
+## 🏆 Standout advantages
 
-- **🔌 Cài một lần, dùng mãi — kết nối ngay giữa chừng công việc, không cần
-  chuẩn bị trước.** Chỉ cần cài đặt đúng 1 lần. Sau đó, bất cứ lúc nào —
-  kể cả khi đang chat dở với Claude ở giữa một việc đang làm — chỉ cần gõ
-  **"hãy kết nối discord"** ngay trong chính cuộc trò chuyện đó là nối luôn,
-  không cần dừng việc đang làm, không cần mở lại từ đầu, không cần cấu hình
-  gì thêm. Đây là điểm **chỉ riêng skill này làm được**: các plugin/bot
-  Discord khác thường yêu cầu bạn khởi tạo phiên làm việc thông qua chúng
-  ngay từ đầu — không hỗ trợ "gắn" Discord vào một cuộc trò chuyện **đang
-  làm việc dở**.
+- **🔌 Install once, use forever — connect mid-task, no prep needed.**
+  You only need to install it once. After that, at any point — even while
+  you're in the middle of a conversation with Claude on some task — just
+  type **"connect to discord"** right in that same conversation and it
+  connects immediately, no need to stop what you're doing, no need to start
+  over, no extra configuration required. This is something **only this
+  skill can do**: other Discord plugins/bots usually require you to
+  initiate the work session through them from the very start — they don't
+  support "attaching" Discord to a conversation that's **already in
+  progress**.
 
-- **📱 Làm việc từ xa thật sự, không chỉ nhận thông báo suông.** Tính năng
-  báo thông báo lên điện thoại có sẵn của Claude Code chỉ để bạn *biết* là
-  Claude cần gì đó — muốn trả lời vẫn phải quay lại đúng máy tính đang mở.
-  Với skill này, bạn **trả lời và tiếp tục sai việc ngay trên điện thoại**,
-  y như đang ngồi trước máy tính gõ lệnh.
+- **📱 Genuine remote work, not just passive notifications.** Claude Code's
+  built-in mobile notification feature only lets you *know* that Claude
+  needs something — to actually respond you still have to get back to the
+  computer where it's running. With this skill, you **reply and keep the
+  task moving right from your phone**, just as if you were sitting at the
+  computer typing commands.
 
-- **🗂️ Không bao giờ nhầm việc, dù đang chạy nhiều việc cùng lúc.** Mỗi
-  cuộc trò chuyện Claude Code là một thread riêng biệt, đặt tên rõ ràng theo
-  đúng việc đang làm (vd "sửa lỗi đăng nhập", "viết báo cáo"). Đang chạy 3-4
-  việc song song vẫn tách bạch rõ ràng, không lo trả lời nhầm cuộc trò
-  chuyện này sang việc khác.
+- **🗂️ Never mix up tasks, even with several running at once.** Each Claude
+  Code conversation is a separate thread, clearly named after the task at
+  hand (e.g. "fix login bug", "write report"). Running 3-4 tasks in
+  parallel still stays clearly separated — no risk of replying to the wrong
+  conversation.
 
-- **🏢 Nhiều dự án, mỗi dự án một khu riêng.** Nếu bạn làm nhiều dự án khác
-  nhau, mỗi dự án hiện ra một kênh Discord riêng — không bị trộn lẫn việc
-  của dự án này với dự án kia.
+- **🏢 Multiple projects, each with its own space.** If you work on several
+  different projects, each one shows up as its own Discord channel — no
+  mixing work from one project into another.
 
-- **⚡ Trả lời nhanh, không phải chờ đợi hay tải lại.** Gõ xong tin nhắn là
-  Claude nhận được gần như ngay lập tức, không cần bấm nút refresh hay chờ
-  vòng lặp kiểm tra chậm chạp.
+- **⚡ Fast replies, no waiting or reloading.** As soon as you finish typing
+  a message, Claude receives it almost instantly — no need to hit refresh
+  or wait through a slow polling loop.
 
-- **✅ Nhìn một cái là biết Claude đang bận hay đã xong.** Mỗi tin nhắn bạn
-  gửi sẽ tự có biểu tượng 🤔 khi Claude đang xử lý và đổi thành ✅ khi xong —
-  không cần hỏi lại "xong chưa?".
+- **✅ One glance tells you whether Claude is busy or done.** Every message
+  you send automatically gets a 🤔 icon while Claude is processing it, and
+  it changes to ✅ when done — no need to ask "done yet?".
 
-- **🔒 Riêng tư, không qua bên thứ ba.** Toàn bộ tin nhắn đi thẳng giữa máy
-  bạn và Discord của chính bạn — không có máy chủ trung gian nào khác lưu
-  hay đọc được nội dung trò chuyện.
+- **🔒 Private, no third party involved.** All messages go directly between
+  your machine and your own Discord — no intermediary server stores or can
+  read the conversation content.
 
-- **🧠 Không cần biết kỹ thuật để dùng.** Chỉ cần gõ đúng 1 câu **"kết nối
-  Discord đi"**, mọi thứ còn lại Claude tự lo — không cần chạy lệnh, không
-  cần hiểu cách nó hoạt động bên trong.
+- **🧠 No technical knowledge required to use it.** Just type one simple
+  sentence, **"connect to Discord"**, and Claude handles everything else —
+  no commands to run, no need to understand how it works internally.
 
-- **🔁 Cài một lần, dùng mãi.** Thiết lập ban đầu chỉ mất vài phút, sau đó
-  mọi cuộc trò chuyện mới đều tự động sẵn sàng kết nối Discord mà không cần
-  làm lại từ đầu.
+- **🔁 Install once, use forever.** The initial setup takes only a few
+  minutes, and after that every new conversation is automatically ready to
+  connect to Discord without setting it up again.
 
-## ⚖️ So với plugin Discord chính thức (`discord@claude-plugins-official`)
+## ⚖️ Compared to the official Discord plugin (`discord@claude-plugins-official`)
 
-Anthropic cũng có plugin Discord chính thức (MCP server chạy trên Bun, tích
-hợp qua `claude --channels`). Skill này chọn hướng khác, đơn giản và bám sát
-đúng nhu cầu multi-project/multi-session hơn:
+Anthropic also has an official Discord plugin (an MCP server running on
+Bun, integrated via `claude --channels`). This skill takes a different,
+simpler direction that hews closer to actual multi-project/multi-session
+needs:
 
-- **Gắn Discord vào ngay 1 cuộc trò chuyện đang làm việc dở.** Chỉ cần gõ
-  "hãy kết nối discord" ngay trong session đang chạy là xong — không cần
-  biết trước sẽ cần Discord, không cần khởi động lại hay cấu hình gì trước
-  khi bắt đầu việc. Plugin chính thức (và hầu hết bot Discord khác) yêu cầu
-  thiết lập kênh/phiên làm việc thông qua chúng ngay từ đầu.
-- **Tự động map 1 project ↔ 1 channel, 1 session ↔ 1 thread.** Plugin chính
-  thức không có cơ chế này sẵn — phải tự quản lý threading bằng `reply_to`
-  thủ công.
-- **Gửi/nhận tách rời hoàn toàn.** `send.js` gọi REST trực tiếp, độc lập
-  100% với chiều nhận — kể cả khi listener nhận tin đang gặp sự cố, gửi tin
-  vẫn không bao giờ bị chặn. Plugin chính thức gộp chung trong 1 MCP server.
-- **Không cần Bun, không cần MCP, không cần cờ `--channels`.** Chỉ cần
-  Node.js >= 18 sẵn có + `npm install` trong đúng thư mục skill.
-- **Cài đặt tối giản.** Một file `.env` khai báo token + ID, không cần chạy
-  slash command cấu hình (`/discord:configure`, `/discord:access ...`) hay
-  qua bước pairing code.
-- **Đã đo hiệu năng thật trên máy, không đoán mò** (node khởi động ~85ms,
-  1 REST call Discord ~0.4–0.66s, `fs.watch` phát hiện tin mới ~14ms) — và đã
-  từng thử tối ưu bằng gộp REST call rồi bị revert vì gây race condition/429,
-  nên hướng thiết kế hiện tại đã được kiểm chứng thực tế thay vì lý thuyết.
-- **Gắn liền với từng project, không phải cấu hình toàn cục.** Muốn dùng ở
-  project khác chỉ cần copy nguyên thư mục skill sang, không ảnh hưởng cấu
-  hình Claude Code toàn máy.
+- **Attaches Discord to a conversation that's already in progress.** Just
+  type "connect to discord" right in the running session and you're done —
+  no need to know in advance that you'll need Discord, no restart or
+  configuration required before starting the task. The official plugin
+  (and most other Discord bots) require you to set up the channel/work
+  session through them from the very start.
+- **Automatically maps 1 project ↔ 1 channel, 1 session ↔ 1 thread.** The
+  official plugin has no such mechanism built in — you have to manage
+  threading manually via `reply_to`.
+- **Sending and receiving are fully decoupled.** `send.js` calls REST
+  directly, 100% independent from the receive direction — even if the
+  listener that receives messages is having trouble, sending is never
+  blocked. The official plugin bundles everything into 1 MCP server.
+- **No need for Bun, no MCP, no `--channels` flag.** Just Node.js >= 18
+  (which you likely already have) plus `npm install` in the skill
+  directory.
+- **Minimal setup.** A single `.env` file declaring the token + IDs, no
+  need to run configuration slash commands (`/discord:configure`,
+  `/discord:access ...`) or go through a pairing-code step.
+- **Backed by real on-machine performance measurements, not guesswork**
+  (node startup ~85ms, 1 Discord REST call ~0.4–0.66s, `fs.watch`
+  detecting a new message ~14ms) — and an earlier attempt to optimize by
+  batching REST calls was reverted because it caused a race
+  condition/429s, so the current design has been validated in practice
+  rather than just in theory.
+- **Tied to each individual project, not a global configuration.** To use
+  it in another project, just copy the skill directory over — it doesn't
+  touch the machine-wide Claude Code configuration.
 
 ## 🖼️ Demo
 
 ![Demo](.claude/skills/claude-easy-discord-bridge/assets/demo.png)
 
-## 🏗️ Kiến trúc tổng quan
+## 🏗️ Architecture overview
 
 ```
 Project A                              Project B
    │                                       │
-   ├─ Channel Discord A                    ├─ Channel Discord B
+   ├─ Discord Channel A                    ├─ Discord Channel B
    │    ├─ Thread: session 1               │    ├─ Thread: session 1
    │    └─ Thread: session 2               │    └─ Thread: session 2
    │                                       │
-   └─ discord-listener.js (1 tiến trình)   └─ discord-listener.js (1 tiến trình)
-        dùng chung cho mọi session              dùng chung cho mọi session
+   └─ discord-listener.js (1 process)      └─ discord-listener.js (1 process)
+        shared by every session                 shared by every session
 ```
 
-Chi tiết đầy đủ (thành phần, luồng kết nối/gửi/nhận/ngắt, lý do từng quyết
-định thiết kế, số liệu hiệu năng đo thật): xem
+For the full details (components, connect/send/receive/disconnect flows,
+the reasoning behind each design decision, real measured performance
+numbers): see
 [docs/claude-easy-discord-bridge-architecture.md](.claude/skills/claude-easy-discord-bridge/docs/claude-easy-discord-bridge-architecture.md).
 
-## 🚀 Cài đặt
+## 🚀 Installation
 
-**Yêu cầu: Node.js >= 18** (kiểm tra bằng `node -v`). Các script gọi Discord
-REST bằng `fetch` toàn cục, chỉ có sẵn từ Node 18 — Node 16 trở xuống sẽ lỗi
-`fetch is not defined`.
+**Requires: Node.js >= 18** (check with `node -v`). The scripts call the
+Discord REST API using the global `fetch`, which is only available from
+Node 18 onward — Node 16 and below will throw `fetch is not defined`.
 
 ```bash
 cd .claude/skills/claude-easy-discord-bridge
 npm install
 ```
 
-Tạo file `.env` ngay trong thư mục skill này:
+Create a `.env` file right in this skill's directory:
 
 ```env
 DISCORD_BOT_TOKEN=...
@@ -192,39 +212,42 @@ DISCORD_CHANNEL_ID=...
 ALLOWED_USER_IDS=111,222,333
 ```
 
-Bot Discord cần:
-- Quyền: `View Channel`, `Send Messages`, `Create Public Threads`,
-  `Send Messages in Threads` trên channel cha.
-- Bật **Message Content Intent** trong Discord Developer Portal.
+The Discord bot needs:
+- Permissions: `View Channel`, `Send Messages`, `Create Public Threads`,
+  `Send Messages in Threads` on the parent channel.
+- **Message Content Intent** enabled in the Discord Developer Portal.
 
-> Muốn dùng cho project khác? Chỉ cần copy nguyên thư mục
-> `.claude/skills/claude-easy-discord-bridge/` sang `.claude/skills/`
-> của project đó rồi cấu hình lại `.env`.
+> Want to use this in another project? Just copy the entire
+> `.claude/skills/claude-easy-discord-bridge/` directory into that
+> project's `.claude/skills/` and reconfigure `.env`.
 
-## 🎮 Cách dùng
+## 🎮 Usage
 
-Không cần tự tay chạy script — chỉ cần yêu cầu Claude:
+No need to run scripts yourself — just ask Claude:
 
-> "Kết nối Discord đi"
+> "Connect to Discord"
 
-Claude sẽ tự đọc skill và thực hiện đúng chuỗi lệnh cần thiết
-(`ensure-thread.js` → `listen-message.js` → `send.js` → `react.js`), tự lặp
-lại vòng nghe/trả lời cho tới khi bạn yêu cầu ngắt kết nối. Các lệnh này luôn
-chạy qua Bash (kể cả trên Windows — không dùng PowerShell, vì PowerShell 5.1
-dễ làm hỏng tiếng Việt có dấu/emoji khi truyền tham số cho `node.exe`). Chi tiết đầy đủ
-về lệnh và quy tắc bắt buộc: xem
+Claude will read the skill and run the exact sequence of commands needed
+(`ensure-thread.js` → `listen-message.js` → `send.js` → `react.js`),
+automatically looping through listen/reply until you ask it to disconnect.
+These commands always run through Bash (even on Windows — not PowerShell,
+since PowerShell 5.1 tends to mangle Vietnamese diacritics/emoji when
+passing arguments to `node.exe`). For the full details on commands and
+required rules, see
 [SKILL.md](.claude/skills/claude-easy-discord-bridge/SKILL.md).
 
-## ✅ Trạng thái
+## ✅ Status
 
-Đã code xong và **test end-to-end thật với Discord thật** (không phải mock):
-tạo thread, gửi/nhận tin, react, ngắt/resume session đều đã chạy đúng.
+Fully coded and **tested end-to-end against a real Discord** (not a mock):
+creating threads, sending/receiving messages, reacting, and
+disconnecting/resuming sessions have all been verified working correctly.
 
 ## 📄 License
 
-Phát hành theo [Apache License 2.0](LICENSE) — dùng, sửa, phân phối lại tự
-do, kể cả cho mục đích thương mại, miễn giữ nguyên thông báo bản quyền.
+Released under the [Apache License 2.0](LICENSE) — free to use, modify,
+and redistribute, including for commercial purposes, as long as the
+copyright notice is retained.
 
-## 👤 Tác giả
+## 👤 Author
 
 **dangntvn** — [dangnt.vn@gmail.com](mailto:dangnt.vn@gmail.com)

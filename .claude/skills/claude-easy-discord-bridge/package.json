@@ -1,8 +1,8 @@
 {
   "name": "claude-easy-discord-bridge",
   "private": true,
-  "version": "0.8.0",
-  "description": "Discord bridge cho Claude Code - project<->channel, session<->thread",
+  "version": "0.9.0",
+  "description": "Discord bridge for Claude Code - project<->channel, session<->thread",
   "engines": {
     "node": ">=18"
   },

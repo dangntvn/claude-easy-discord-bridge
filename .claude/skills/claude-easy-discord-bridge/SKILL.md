@@ -1,154 +1,167 @@
 ---
 name: claude-easy-discord-bridge
-description: Cầu nối Discord cho Claude Code — mỗi project 1 channel, mỗi session (cuộc chat) 1 thread riêng, dùng khi người dùng yêu cầu kết nối/gửi/nhận tin nhắn qua Discord cho phiên đang chạy.
+description: Discord bridge for Claude Code — 1 channel per project, 1 dedicated thread per session (conversation), used when the user asks to connect/send/receive messages via Discord for the running session.
 allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/*.js)
   - Bash(node ${CLAUDE_SKILL_DIR}/scripts/*.js *)
 ---
 
-Cầu nối Discord 2 chiều cho đúng 1 session Claude Code đang chạy: mỗi
-project ↔ 1 channel, mỗi session (cuộc chat) ↔ 1 thread riêng trong channel
-đó. Toàn bộ script thực thi nằm trong `scripts/`, luôn gọi qua
-`${CLAUDE_SKILL_DIR}/scripts/<tên file>.js` (Claude Code tự thay thành đường
-dẫn tuyệt đối của thư mục skill này) — không cần `cd` vào thư mục skill
-trước, chạy đúng dù Bash đang ở cwd nào. Không tự truyền tay session id nào
-cả — mọi script tự đọc `CLAUDE_CODE_SESSION_ID` từ môi trường Bash để biết
-đang thao tác đúng session/thread nào.
+Two-way Discord bridge for exactly 1 running Claude Code session: 1 project ↔
+1 channel, 1 session (conversation) ↔ 1 dedicated thread in that channel. All
+executable scripts live in `scripts/`, always invoked via
+`${CLAUDE_SKILL_DIR}/scripts/<file name>.js` (Claude Code substitutes this
+with the absolute path of this skill's directory) — no need to `cd` into the
+skill directory first, it works correctly regardless of Bash's current
+working directory. No session id is ever passed by hand — every script reads
+`CLAUDE_CODE_SESSION_ID` from the environment itself to know which
+session/thread it's operating on.
 
-**Mọi lệnh của skill này BẮT BUỘC gọi bằng Bash tool** — kể cả trên Windows,
-không dùng PowerShell. Lý do: (1) `allowed-tools` của skill chỉ whitelist
-dạng `Bash(...)`, gọi bằng shell khác sẽ bị hỏi quyền lại ở từng lệnh, phá
-hỏng trải nghiệm điều khiển từ xa; (2) Windows PowerShell 5.1 truyền tham số
-cho `node.exe` theo ANSI codepage, nội dung tiếng Việt có dấu và emoji dễ bị
-hỏng khi gửi lên Discord.
+**Every command in this skill MUST be called via the Bash tool** — even on
+Windows, not PowerShell. Reasons: (1) this skill's `allowed-tools` only
+whitelists the `Bash(...)` form, calling via another shell would trigger a
+fresh permission prompt on every single command, breaking the remote-control
+experience; (2) Windows PowerShell 5.1 passes arguments to `node.exe` using
+the ANSI codepage, so non-ASCII text and emoji easily get corrupted before
+reaching Discord.
 
-Thiết kế/kiến trúc đầy đủ (không cần đọc để dùng skill, chỉ cần khi sửa
-code): xem [architecture.md](docs/claude-easy-discord-bridge-architecture.md).
+Full design/architecture (not needed to use the skill, only when modifying
+the code): see [architecture.md](docs/claude-easy-discord-bridge-architecture.md).
 
-## Cài đặt lần đầu (chỉ 1 lần cho mỗi project)
+## First-time setup (once per project)
 
-**Yêu cầu: Node.js >= 18** (kiểm tra bằng `node -v`) — các script gọi Discord
-REST bằng `fetch` toàn cục, chỉ có sẵn từ Node 18. Node 16 trở xuống sẽ lỗi
-`fetch is not defined`.
+**Requires Node.js >= 18** (check with `node -v`) — the scripts call the
+Discord REST API with the global `fetch`, only available from Node 18
+onward. Node 16 or lower will fail with `fetch is not defined`.
 
 ```
 cd .claude/skills/claude-easy-discord-bridge
 npm install
 ```
 
-Tạo file `.env` ngay trong thư mục skill này, khai báo `DISCORD_BOT_TOKEN`,
-`DISCORD_SERVER_ID`, `DISCORD_CHANNEL_ID`, `ALLOWED_USER_IDS` (nhiều user thì
-cách nhau bởi dấu phẩy, ví dụ `111,222,333`).
+Create a `.env` file right in this skill's directory, declaring
+`DISCORD_BOT_TOKEN`, `DISCORD_SERVER_ID`, `DISCORD_CHANNEL_ID`,
+`ALLOWED_USER_IDS` (comma-separated for multiple users, e.g.
+`111,222,333`).
 
-## Khi nào dùng skill này
+## When to use this skill
 
-Chỉ hành động khi người dùng yêu cầu **tường minh** trong đúng cuộc chat đó
-(vd "kết nối discord đi", "ngắt kết nối discord đi"). Không tự động kết nối,
-không tự động ngắt kết nối trong bất kỳ trường hợp nào khác.
+Only act when the user **explicitly** asks, in that exact conversation (e.g.
+"connect to discord", "disconnect from discord"). Never auto-connect, never
+auto-disconnect under any other circumstance.
 
-## Luồng hoạt động — làm đúng thứ tự sau
+## Operating flow — follow this exact order
 
-### 1. Kết nối
+### 1. Connect
 
-Tự đặt 1 tên mô tả ngắn cho việc đang làm (vd "sửa lỗi đăng nhập"), rồi gọi:
+Pick a short description of the current task (e.g. "fix login bug"), then
+call:
 
 ```
-node ${CLAUDE_SKILL_DIR}/scripts/ensure-thread.js "<tên mô tả ngắn>"
+node ${CLAUDE_SKILL_DIR}/scripts/ensure-thread.js "<short description>"
 ```
 
-Script này tự lo hết: tạo thread mới hoặc dùng lại đúng thread cũ của session
-này, dọn sạch tin rác còn sót trong inbox từ lần kết nối trước, gửi 1 tin xác
-nhận vào thread, và tự khởi động lại listener dùng chung nếu nó chưa chạy
-hoặc đã chết.
+This script handles everything: creates a new thread or reuses this
+session's existing thread, clears out any leftover stale messages in the
+inbox from a previous connection, sends a confirmation message to the
+thread, and restarts the shared listener if it isn't running or has died.
 
-### 2. Chờ tin nhắn kế tiếp từ Discord
+### 2. Wait for the next message from Discord
 
 ```
 node ${CLAUDE_SKILL_DIR}/scripts/listen-message.js
 ```
 
-**BẮT BUỘC gọi qua Bash với `run_in_background: true`** — không gọi đồng bộ,
-không kèm `timeout` cố định. Script này không có timeout nội bộ: tự chờ vô
-hạn tới khi có tin nhắn mới, in ra đúng 1 dòng JSON (`messageId`, `content`,
-...) rồi tự thoát. Nếu gọi đồng bộ kèm `timeout`, hết giờ mà chưa có tin thì
-bash tool sẽ huỷ lệnh giữa chừng — mất `task-notification`, Claude không
-được đánh thức lại khi tin nhắn thật sự tới. Chạy nền không chặn việc gửi
-tin — `send.js` gọi được bất cứ lúc nào kể cả khi `listen-message.js` đang
-chờ ở nền.
+**MUST be called via Bash with `run_in_background: true`** — never
+synchronously, never with a fixed `timeout`. This script has no internal
+timeout: it waits indefinitely until a new message arrives, prints exactly
+one line of JSON (`messageId`, `content`, ...), then exits on its own. If
+called synchronously with a `timeout`, the bash tool would kill the command
+partway through once time runs out — losing the `task-notification`, so
+Claude never wakes back up when the real message actually arrives. Running
+it in the background never blocks sending — `send.js` can be called at any
+time, even while `listen-message.js` is waiting in the background.
 
-**Ngay khi nhận được `task-notification` kèm JSON của bước này (TRƯỚC KHI
-làm bất cứ việc gì khác)**: gọi lại `listen-message.js` (nền) một lần nữa
-ngay lập tức để tiếp tục chờ tin kế tiếp — không đợi xử lý xong tin vừa nhận
-mới gọi lại. Nhờ vậy nếu người dùng gửi tiếp 1 tin khác trong lúc Claude
-đang xử lý tin này, Claude vẫn được báo ngay chứ không bị im lặng chờ đến khi
-xử lý xong tin hiện tại.
+**As soon as the `task-notification` with this step's JSON arrives (BEFORE
+doing anything else)**: immediately call `listen-message.js` again (in the
+background) to keep waiting for the next message — don't wait until the
+current message is fully handled before re-arming it. This way, if the user
+sends another message while Claude is still processing the current one,
+Claude gets notified right away instead of silently waiting until it's done
+with the current message.
 
-### 3. Xử lý tin nhắn vừa nhận được
+### 3. Handle the message just received
 
 ```
 node ${CLAUDE_SKILL_DIR}/scripts/react.js <messageId> start
 ```
-react 🤔 lên đúng tin nhắn gốc để báo đang xử lý (dùng `messageId` từ JSON ở
-bước 2).
+React 🤔 on the original message to signal it's being processed (use the
+`messageId` from step 2's JSON).
 
-Xử lý yêu cầu của người dùng trong tin nhắn như bình thường, rồi trả lời:
+Handle the user's request in the message as usual, then reply:
 
 ```
-node ${CLAUDE_SKILL_DIR}/scripts/send.js "<nội dung trả lời>"
+node ${CLAUDE_SKILL_DIR}/scripts/send.js "<reply content>"
 ```
 
 ```
 node ${CLAUDE_SKILL_DIR}/scripts/react.js <messageId> done
 ```
-gỡ 🤔, react ✅ — gọi trước hoặc ngay sau `send.js`, không phụ thuộc thời
-lượng xử lý tin nhắn.
+Removes 🤔, adds ✅ — call this before or right after `send.js`, regardless
+of how long processing took.
 
-### 4. Vòng lặp tiếp tục tự nhiên
+### 4. The loop continues naturally
 
-Vì bước 2 đã tự gọi lại `listen-message.js` (nền) ngay khi nhận tin — trước
-khi xử lý — nên lúc đang làm bước 3 thì listener đã sẵn sàng chờ tin kế tiếp
-rồi, không cần làm gì thêm ở đây. Khi `task-notification` tiếp theo tới,
-quay lại bước 2 → 3 như cũ. Chỉ dừng hẳn vòng lặp (không re-arm
-`listen-message.js` nữa) khi người dùng yêu cầu ngắt kết nối.
+Since step 2 already re-armed `listen-message.js` (in the background) as
+soon as the message arrived — before processing began — the listener is
+already waiting for the next message while step 3 is happening, so nothing
+else needs to be done here. When the next `task-notification` arrives, go
+back to step 2 → 3. Only stop the loop entirely (stop re-arming
+`listen-message.js`) when the user asks to disconnect.
 
-## Ngắt kết nối
+## Disconnecting
 
-- **Ngắt session hiện tại** (chỉ ảnh hưởng đúng session đang chat, không đụng
-  session khác):
+- **Disconnect the current session** (only affects this conversation's
+  session, doesn't touch other sessions):
   `node ${CLAUDE_SKILL_DIR}/scripts/disconnect.js session`
-- **Ngắt cả project** (kill listener dùng chung cho MỌI session của project
-  này — script tự cảnh báo nếu còn session khác đang sống; cần thêm
-  `--confirm` để vẫn tiếp tục sau khi đã thấy cảnh báo):
+- **Disconnect the whole project** (kills the listener shared by EVERY
+  session of this project — the script warns first if other sessions are
+  still alive; requires `--confirm` to proceed after seeing the warning):
   `node ${CLAUDE_SKILL_DIR}/scripts/disconnect.js project [--confirm]`
 
-## Hỏi nhiều lựa chọn (kiểu `AskUserQuestion`) khi đang nối Discord
+## Asking multiple-choice questions (like `AskUserQuestion`) while connected to Discord
 
-`AskUserQuestion` chỉ hiện ở giao diện gốc (VSCode/CLI) — người dùng đang
-theo dõi qua Discord sẽ không thấy tool đó. Khi cần hỏi người dùng chọn giữa
-nhiều phương án trong lúc đang nối Discord, làm thêm bước sau (có thể song
-song với việc vẫn gọi `AskUserQuestion` như bình thường để giữ cả 2 kênh):
+`AskUserQuestion` only shows up in the native UI (VSCode/CLI) — a user
+following along via Discord won't see that tool. When you need to ask the
+user to choose between multiple options while connected to Discord, do the
+following instead (optionally alongside still calling `AskUserQuestion`
+normally, to keep both channels in sync):
 
-1. Soạn câu hỏi + liệt kê các lựa chọn đánh số (1, 2, 3...) kèm mô tả ngắn,
-   gửi bằng `node ${CLAUDE_SKILL_DIR}/scripts/send.js "<câu hỏi>\n1. ...\n2. ...\n3. ..."`.
-2. Gọi lại `listen-message.js` (nền) chờ trả lời, đúng như vòng lặp chat
-   bình thường ở bước 2-4.
-3. Người dùng có thể trả lời bằng số ("2") hoặc gõ thẳng nội dung lựa chọn —
-   tự diễn giải linh hoạt, không cần khớp chính xác chuỗi.
+1. Write the question + list the numbered options (1, 2, 3...) with short
+   descriptions, send it with
+   `node ${CLAUDE_SKILL_DIR}/scripts/send.js "<question>\n1. ...\n2. ...\n3. ..."`.
+2. Call `listen-message.js` again (in the background) to wait for the
+   reply, exactly like the normal chat loop in steps 2-4.
+3. The user may reply with a number ("2") or type the option's content
+   directly — interpret it flexibly, no need for an exact string match.
 
-Việc này không cần thêm hook hay cơ chế riêng — dùng lại đúng `send.js`/
-`listen-message.js` đã có sẵn, vì đây là Claude chủ động hỏi.
+This needs no extra hook or dedicated mechanism — it reuses the existing
+`send.js`/`listen-message.js`, since this is Claude proactively asking, not
+a permission prompt.
 
-## Quy tắc bắt buộc — đừng tự ý đổi
+## Hard rules — do not change these on your own
 
-- Không tự động kết nối/ngắt kết nối — chỉ khi người dùng yêu cầu tường minh.
-- Luôn gọi script bằng Bash tool, không dùng PowerShell (lý do ở đầu file).
-- Giữ nguyên luồng tuần tự `react start` (chờ xong) → `send.js` → `react
-  done` (chờ xong). Không gộp các lệnh này chạy song song/fire-and-forget để
-  "tối ưu tốc độ" — đã thử và bị yêu cầu revert vì gây lỗi thật (rate limit,
-  báo trạng thái sai). Không tối ưu lại theo hướng này trừ khi được yêu cầu
-  tường minh.
-- Không đi tối ưu cơ chế đọc inbox (`fs.watch`/`POLL_INTERVAL_MS`) — không
-  phải nguồn độ trễ đáng kể của cầu nối này.
+- Never auto-connect/auto-disconnect — only on explicit user request.
+- Always call scripts via the Bash tool, never PowerShell (reason at the
+  top of this file).
+- Keep the sequential flow `react start` (await) → `send.js` → `react done`
+  (await). Do not merge these calls into parallel/fire-and-forget execution
+  to "optimize speed" — this was tried before and the user asked for a
+  revert because it caused real bugs (rate limiting, wrong status
+  reporting). Do not re-attempt this optimization unless explicitly asked.
+- Do not optimize the inbox-reading mechanism (`fs.watch`/
+  `POLL_INTERVAL_MS`) — it is not a meaningful source of latency in this
+  bridge.
 
-Lý do, số liệu đo thật, và toàn bộ quyết định thiết kế đứng sau các quy tắc
-trên: xem [architecture.md](docs/claude-easy-discord-bridge-architecture.md).
+For the reasoning, real measured numbers, and the full design decisions
+behind these rules: see
+[architecture.md](docs/claude-easy-discord-bridge-architecture.md).
